@@ -30,7 +30,7 @@ Tri-Model LLM Arena allows developers and researchers to send a single prompt an
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/your-username/tri-model-arena.git](https://github.com/your-username/tri-model-arena.git)
+    git clone [https://github.com/jaswanth-surabattula/tri-model-arena.git](https://github.com/jaswanth-surabattula/tri-model-arena.git)
     cd tri-model-arena
     ```
 
