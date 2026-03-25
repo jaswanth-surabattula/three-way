@@ -1,3 +1,21 @@
+---
+title: Tri-Model LLM Arena
+emoji: 🥊
+colorFrom: blue
+colorTo: indigo
+sdk: gradio
+sdk_version: 4.44.0
+app_file: app.py
+pinned: false
+license: mit
+tags:
+- llm-benchmarking
+- openai
+- claude
+- gemini
+- comparison
+---
+
 # Tri-Model LLM Arena 🥊
 
 A unified, asynchronous chat interface designed to compare the "Big Three" AI providers—Anthropic, Google, and OpenAI—simultaneously within a single, responsive dashboard.
@@ -55,8 +73,6 @@ Tri-Model LLM Arena allows developers and researchers to send a single prompt an
 ## 📊 Analytics Logic
 The application calculates session metrics using the following logic:
 * **Latency ($L$):** $L = T_{response} - T_{request}$
-* **Cost Calculation:**
-    $$\text{Total Cost} = \sum (\text{Prompt Tokens} \times \text{Rate}_{in}) + (\text{Completion Tokens} \times \text{Rate}_{out})$$
-
+* **Cost Calculation:** $$Cost = \sum (Tokens_{in} \cdot Rate_{in}) + (Tokens_{out} \cdot Rate_{out})$$
 ## 📝 License
 This project is licensed under the **MIT License**. This allows for open contribution and modification while keeping the tool accessible to the community. See the [LICENSE](LICENSE) file for more details.
