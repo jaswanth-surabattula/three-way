@@ -1,0 +1,24 @@
+[project]
+name = "three-way"
+version = "0.1.0"
+description = "A real-time comparative chat interface for side-by-side benchmarking of Claude, Gemini, and OpenAI models. Features asynchronous API calls, Replit-style responsive UI, and detailed session performance analytics (latency, tokens, and cost)."
+readme = "README.md"
+authors = [
+    { name = "jaswanth-surabattula", email = "122669751+jaswanth-surabattula@users.noreply.github.com" }
+]
+requires-python = ">=3.14"
+dependencies = [
+    "anthropic>=0.86.0",
+    "google-generativeai>=0.8.6",
+    "openai>=2.30.0",
+    "pydantic>=2.12.5",
+    "python-dotenv>=1.2.2",
+    "ruff>=0.15.7",
+]
+
+[project.scripts]
+three-way = "three_way:main"
+
+[build-system]
+requires = ["uv_build>=0.11.1,<0.12.0"]
+build-backend = "uv_build"
