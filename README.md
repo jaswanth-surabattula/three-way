@@ -74,5 +74,14 @@ Tri-Model LLM Arena allows developers and researchers to send a single prompt an
 The application calculates session metrics using the following logic:
 * **Latency ($L$):** $L = T_{response} - T_{request}$
 * **Cost Calculation:** $$Cost = \sum (Tokens_{in} \cdot Rate_{in}) + (Tokens_{out} \cdot Rate_{out})$$
+## 🔄 Keeping Models Up to Date
+
+Model IDs and pricing are hardcoded in `src/three_way/core/config.py`.
+When providers release new models or retire old ones, update that file manually.
+
+See **[docs/how_to_update_models.md](docs/how_to_update_models.md)** for step-by-step instructions,
+including where to find model IDs, how to convert pricing to the format the code expects,
+and which deprecation pages to watch.
+
 ## 📝 License
 This project is licensed under the **MIT License**. This allows for open contribution and modification while keeping the tool accessible to the community. See the [LICENSE](LICENSE) file for more details.
