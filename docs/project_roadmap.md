@@ -6,11 +6,11 @@
 |---|---|---|---|
 | 1 | 2026-03-30 | `models/chat.py` — Pydantic schemas | Done |
 | 2 | 2026-03-30 | `core/config.py` — model catalogue + API key helpers | Done |
-| 3 | next | `utils/timer.py` — latency context manager + cost helper | Pending |
-| 4 | - | `services/openai_client.py` | Pending |
-| 5 | - | `services/gemini_client.py` + `services/claude_client.py` | Pending |
-| 6 | - | `services/arena.py` — concurrent orchestrator | Pending |
-| 7 | - | Terminal smoke test + debug | Pending |
+| 3 | 2026-03-31 | `utils/timer.py` — Timer context manager + calculate_cost() with tiered pricing | Done |
+| 4 | 2026-03-31 | `services/openai_client.py` | Done |
+| 5 | 2026-03-31 | `services/gemini_client.py` + `services/claude_client.py` | Done |
+| 6 | 2026-03-31 | `services/arena.py` — asyncio.gather orchestrator | Done |
+| 7 | - | Terminal smoke test + `__init__.py` main() | Pending |
 | 8 | - | Gradio UI — 3-pane layout + model dropdowns | Pending |
 | 9 | - | Gradio UI — wire submit + display responses | Pending |
 | 10 | - | Vision / image input support | Pending |
@@ -27,16 +27,26 @@
 **Files:** `models/chat.py`, `core/config.py`
 
 - Pydantic schemas: `Provider`, `ChatMessage`, `ChatRequest`, `ChatResponse`
-- Central config: full model catalogue (OpenAI GPT-4.1, Gemini 2.x/2.5, Claude 4.x), pricing, API key helpers
+- Central config: model catalogue (OpenAI GPT-5.4, Gemini 2.5, Claude 4.x), tiered pricing support, API key helpers
 - `ChatResponse.error` field so one failing provider doesn't crash the others
 
 ---
 
-### Phase 2 — Utilities
+### Phase 2 — Utilities ✅
 **File:** `utils/timer.py`
 
 - `Timer` context manager — wraps a block of code and records elapsed time
-- `calculate_cost(prompt_tokens, completion_tokens, input_rate, output_rate)` — shared math used by all three clients
+- `calculate_cost()` — applies tiered pricing (short/long context) per model; shared by all three clients
+
+---
+
+### Phase 3 — API Clients ✅
+**Files:** `services/openai_client.py`, `services/gemini_client.py`, `services/claude_client.py`, `services/arena.py`
+
+- Each client: async `chat(request, model_id) -> ChatResponse` — same interface, different SDK internals
+- `arena.py`: `asyncio.gather` fires all three simultaneously; total wait ≈ slowest provider
+- Migrated Gemini SDK from deprecated `google-generativeai` to `google-genai`
+- Confirmed live: Claude Haiku works; OpenAI and Gemini pending billing setup
 
 ---
 
