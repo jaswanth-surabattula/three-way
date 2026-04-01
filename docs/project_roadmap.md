@@ -10,9 +10,9 @@
 | 4 | 2026-03-31 | `services/openai_client.py` | Done |
 | 5 | 2026-03-31 | `services/gemini_client.py` + `services/claude_client.py` | Done |
 | 6 | 2026-03-31 | `services/arena.py` — asyncio.gather orchestrator | Done |
-| 7 | - | Terminal smoke test + `__init__.py` main() | Pending |
-| 8 | - | Gradio UI — 3-pane layout + model dropdowns | Pending |
-| 9 | - | Gradio UI — wire submit + display responses | Pending |
+| 7 | 2026-04-01 | Terminal smoke test + `__init__.py` main() | Done |
+| 8 | 2026-04-01 | Gradio UI — 3-pane layout + model dropdowns | Done |
+| 9 | 2026-04-01 | Gradio UI — wire submit + display responses | Done |
 | 10 | - | Vision / image input support | Pending |
 | 11 | - | Analytics panel (latency, tokens, cost per turn) | Pending |
 | 12 | - | Session report (HTML export, charts, AI summary) | Pending |
@@ -85,22 +85,56 @@ Without this, calls would be sequential (~3× slower).
 
 ---
 
-### Phase 5 — Terminal Smoke Test
-**File:** `src/three_way/__init__.py` (update `main()`)
+### Phase 5 — Gradio UI: Layout & Wiring ✅
+**Files:** `ui/app.py`, `ui/components/`, `ui/handlers.py`, `ui/helpers.py`, `ui/css.py`, `ui/constants.py`
 
-Run `uv run three-way` and verify all three clients return real responses.
-Fix any auth errors or SDK quirks here — much easier than debugging inside a UI.
+#### Component structure
+- `app.py` — assembles all components and wires all Gradio events; the only file that imports from both `components/` and `handlers.py`
+- `components/header.py` — app title + New Session button
+- `components/panels.py` — 3 `gr.Chatbot` panels + empty-state badges (shown before first prompt)
+- `components/input_bar.py` — prompt textarea + model dropdowns + send/chevron buttons + collapsible session menu
+- `components/modals.py` — model-change confirmation modal + end-session/report modal
+- `css.py` — all Gradio CSS overrides: pill-style dropdowns, dark theme, panel sizing
+- `constants.py` — cycling empty-state phase messages
+
+#### How UI events wire to backend
+Each Gradio event uses `.click()` or `.submit()` on a component, binding an `inputs` list → handler function → `outputs` list. No direct backend calls live in `app.py`; all logic is in `handlers.py`.
+
+Example — send button wired to submission handler:
+```python
+send_btn.click(
+    fn=on_submit,
+    inputs=[prompt_box, openai_dd, gemini_dd, claude_dd,
+            openai_chat, gemini_chat, claude_chat, session_active],
+    outputs=[openai_chat, gemini_chat, claude_chat,
+             status, prompt_box, session_active, panels_row, phase_col],
+)
+```
+
+#### Handler → service flow (`on_submit`)
+1. `helpers.display_to_model_id(dd_value)` — maps dropdown display name to model ID string (e.g. `"GPT-5.4 Nano"` → `"gpt-5.4-nano"`)
+2. `helpers.history_to_messages(chat_history)` — converts Gradio chat list to `list[ChatMessage]`
+3. `arena.run(req_a, req_b, req_c, model_a, model_b, model_c)` — fires all three APIs via `asyncio.gather`; waits for the slowest
+4. `helpers.format_response(response)` — appends latency / token / cost stats table to response text
+5. Yields updated chat histories + status string back to Gradio (UI updates live)
+
+#### UI state management
+Three `gr.State` objects carry state between events (not stored server-side):
+- `session_active: bool` — gates model-change confirmation modal
+- `menu_visible: bool` — tracks chevron toggle open/close
+- `phase_idx: int` — cycles empty-state phase messages on each New Session click
 
 ---
 
-### Phase 6 — Gradio UI: Core Layout
-**File:** `ui/app.py`
+### Phase 6 — Terminal Smoke Test ✅
+**File:** `src/three_way/__init__.py`
 
-- 3-column layout, one per provider
-- Each column: provider label, model dropdown (populated from `models_for_provider()`), response text box
-- Shared prompt input + submit button at the bottom
-- Model dropdowns auto-update from config — no UI code changes needed when adding new models
+`main()` calls `arena.run()` with a hardcoded prompt and prints all three responses.
+Confirms all three clients fire and return before touching the UI — easier to debug auth errors here.
 
+---
+
+### Phase 7 — Vision / Image Support
 ---
 
 ### Phase 7 — Vision / Image Support

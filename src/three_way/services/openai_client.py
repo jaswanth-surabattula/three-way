@@ -1,3 +1,4 @@
+import logging
 from typing import cast
 
 from openai import AsyncOpenAI
@@ -6,6 +7,8 @@ from openai.types.chat import ChatCompletionMessageParam
 from three_way.core.config import get_api_key, get_model
 from three_way.models.chat import ChatRequest, ChatResponse, Provider
 from three_way.utils.timer import Timer, calculate_cost
+
+log = logging.getLogger(__name__)
 
 
 async def chat(request: ChatRequest, model_id: str) -> ChatResponse:
@@ -25,6 +28,9 @@ async def chat(request: ChatRequest, model_id: str) -> ChatResponse:
 
     messages = cast(list[ChatCompletionMessageParam], [m.model_dump() for m in request.messages])
 
+    log.info("OpenAI request  model=%s  turns=%d  max_tokens=%d",
+             model_id, len(request.messages), request.max_tokens)
+
     try:
         with Timer() as t:
             response = await client.chat.completions.create(
@@ -37,6 +43,14 @@ async def chat(request: ChatRequest, model_id: str) -> ChatResponse:
         usage = response.usage
         prompt_tokens = usage.prompt_tokens if usage else 0
         completion_tokens = usage.completion_tokens if usage else 0
+        finish_reason = choice.finish_reason
+
+        log.info(
+            "OpenAI response model=%s  finish=%s  tokens=%d+%d  latency=%.2fs",
+            model_id, finish_reason, prompt_tokens, completion_tokens, t.elapsed,
+        )
+        if finish_reason == "length":
+            log.warning("OpenAI response truncated (finish_reason=length)  model=%s", model_id)
 
         return ChatResponse(
             provider=Provider.OPENAI,
@@ -53,6 +67,7 @@ async def chat(request: ChatRequest, model_id: str) -> ChatResponse:
         )
 
     except Exception as e:
+        log.error("OpenAI error  model=%s  error=%s", model_id, e, exc_info=True)
         return ChatResponse(
             provider=Provider.OPENAI,
             model=model_config.display_name,
