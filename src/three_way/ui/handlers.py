@@ -1,103 +1,68 @@
-import gradio as gr
+import logging
 
 from three_way.models.chat import ChatRequest
 from three_way.services import arena
-from three_way.ui.constants import PHASE_MESSAGES
-from three_way.ui.helpers import display_to_model_id, format_response, history_to_messages
+from three_way.ui.helpers import (
+    display_to_model_id,
+    format_response,
+    history_to_messages,
+)
+
+log = logging.getLogger(__name__)
 
 
 async def on_submit(
-    prompt, openai_display, gemini_display, claude_display,
-    oh, gh, ch, active,
+    prompt: str,
+    openai_display: str,
+    gemini_display: str,
+    claude_display: str,
+    openai_history: list,
+    gemini_history: list,
+    claude_history: list,
 ):
-    if not prompt.strip():
-        yield oh, gh, ch, "_Please enter a prompt._", "", active, gr.update(), gr.update()
+    """Handle a new user message: fan out to all three providers."""
+    prompt = (prompt or "").strip()
+    if not prompt:
+        yield openai_history, gemini_history, claude_history, ""
         return
 
-    openai_model = display_to_model_id(openai_display)
-    gemini_model = display_to_model_id(gemini_display)
-    claude_model = display_to_model_id(claude_display)
+    openai_history = list(openai_history or [])
+    gemini_history = list(gemini_history or [])
+    claude_history = list(claude_history or [])
 
-    user_msg = {"role": "user", "content": prompt.strip()}
-    oh = oh + [user_msg]
-    gh = gh + [user_msg]
-    ch = ch + [user_msg]
+    # Append user turn and yield immediately so UI shows the message
+    openai_history.append({"role": "user", "content": prompt})
+    gemini_history.append({"role": "user", "content": prompt})
+    claude_history.append({"role": "user", "content": prompt})
 
-    yield (
-        oh, gh, ch, "_Thinking…_", "", True,
-        gr.update(visible=True),   # panels_row
-        gr.update(visible=False),  # phase_col
-    )
+    yield openai_history, gemini_history, claude_history, "Querying all three models…"
 
-    openai_resp, gemini_resp, claude_resp = await arena.run(
-        ChatRequest(messages=history_to_messages(oh)),
-        ChatRequest(messages=history_to_messages(gh)),
-        ChatRequest(messages=history_to_messages(ch)),
+    try:
+        openai_model = display_to_model_id(openai_display)
+        gemini_model = display_to_model_id(gemini_display)
+        claude_model = display_to_model_id(claude_display)
+    except ValueError as exc:
+        log.error("Model lookup failed: %s", exc)
+        yield openai_history, gemini_history, claude_history, f"Error: {exc}"
+        return
+
+    openai_req = ChatRequest(messages=history_to_messages(openai_history))
+    gemini_req = ChatRequest(messages=history_to_messages(gemini_history))
+    claude_req = ChatRequest(messages=history_to_messages(claude_history))
+
+    o_resp, g_resp, c_resp = await arena.run(
+        openai_req, gemini_req, claude_req,
         openai_model, gemini_model, claude_model,
     )
 
-    oh = oh + [{"role": "assistant", "content": format_response(openai_resp)}]
-    gh = gh + [{"role": "assistant", "content": format_response(gemini_resp)}]
-    ch = ch + [{"role": "assistant", "content": format_response(claude_resp)}]
+    openai_history.append({"role": "assistant", "content": format_response(o_resp)})
+    gemini_history.append({"role": "assistant", "content": format_response(g_resp)})
+    claude_history.append({"role": "assistant", "content": format_response(c_resp)})
 
-    slowest = max(
-        openai_resp.latency_seconds,
-        gemini_resp.latency_seconds,
-        claude_resp.latency_seconds,
-    )
-    yield (
-        oh, gh, ch, f"_Done in {slowest:.2f}s (wall-clock)._", "", True,
-        gr.update(visible=True),
-        gr.update(visible=False),
-    )
+    wall = max(o_resp.latency_seconds, g_resp.latency_seconds, c_resp.latency_seconds)
+    yield openai_history, gemini_history, claude_history, f"Done in {wall:.2f}s"
 
 
-def on_new_session(p_idx):
-    new_idx = (p_idx + 1) % len(PHASE_MESSAGES)
-    return (
-        [], [], [],
-        "",
-        False,
-        gr.update(value=PHASE_MESSAGES[new_idx]),
-        gr.update(visible=False),   # panels_row
-        gr.update(visible=True),    # phase_col
-        gr.update(visible=False),   # session_menu
-        False,
-        new_idx,
-    )
-
-
-def on_model_change(active):
-    return gr.update(visible=True) if active else gr.update(visible=False)
-
-
-def on_mc_yes():
-    return gr.update(visible=False), gr.update(visible=True)
-
-
-def on_mc_no():
-    return (
-        gr.update(visible=False),   # model_change_modal
-        [], [], [],
-        "",
-        False,
-        gr.update(visible=False),   # panels_row
-        gr.update(visible=True),    # phase_col
-    )
-
-
-def on_chevron_click(visible):
-    new_vis = not visible
-    return gr.update(visible=new_vis), new_vis
-
-
-def on_end_session_click():
-    return gr.update(visible=False), False, gr.update(visible=True)
-
-
-def on_report_yes():
-    return gr.update(visible=False)
-
-
-def on_report_no():
-    return gr.update(visible=False)
+def on_new_session():
+    """Reset all state."""
+    return [], [], [], ""

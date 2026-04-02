@@ -1,474 +1,474 @@
 CSS = """
-/* ════════════════════════════════════════════════════════════════════════
-   Three-Way Arena — Stylesheet
-   Palette: bg #0d0d1a  surface #161622  accent-openai #10a37f
-            accent-gemini #4285f4  accent-claude #d97706
-   ════════════════════════════════════════════════════════════════════════ */
+/* ── Reset & Base ─────────────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* ── Reset & base ─────────────────────────────────────────────────────── */
-*, *::before, *::after { box-sizing: border-box; }
-
-body {
-    background: #0d0d1a !important;
-    background-image:
-        radial-gradient(ellipse 90% 60% at 50% -10%, rgba(80,80,180,0.07) 0%, transparent 65%) !important;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif !important;
-    min-height: 100vh !important;
-    margin: 0 !important;
+body, .gradio-container {
+    background: #0a0a0a !important;
+    color: #e5e7eb !important;
+    font-family: 'Inter', system-ui, sans-serif !important;
+    overflow: hidden;
 }
 
-.gradio-container {
+/* Hide Gradio default chrome */
+.gradio-container > .main,
+footer, .svelte-1ipelgc,
+#component-0 > .wrap {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
     max-width: 100% !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    background: transparent !important;
-    min-height: 100vh !important;
 }
 
-footer { display: none !important; }
-
-/* Gradio adds its own borders/backgrounds on blocks — strip them */
-.block { border: none !important; background: transparent !important; box-shadow: none !important; }
-
-/* ── Header ───────────────────────────────────────────────────────────── */
-#header-row {
-    padding: 14px 28px !important;
-    border-bottom: 1px solid rgba(255,255,255,0.06) !important;
-    align-items: center !important;
-    background: rgba(13,13,26,0.96) !important;
-    backdrop-filter: blur(16px) !important;
-    -webkit-backdrop-filter: blur(16px) !important;
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 100 !important;
-    margin-bottom: 0 !important;
-    gap: 0 !important;
+/* ── Hide Python bridge components from view ──────────────────────────────── */
+#hidden-controls,
+#openai-dd, #gemini-dd, #claude-dd,
+#h-prompt, #h-submit, #h-new-session {
+    display: none !important;
 }
 
-#app-title p, #app-title span {
-    font-size: 13px !important;
-    font-weight: 700 !important;
-    color: #b0b0d8 !important;
-    letter-spacing: 0.12em !important;
-    text-transform: uppercase !important;
-    margin: 0 !important;
+/* ── App Shell ────────────────────────────────────────────────────────────── */
+#app-shell {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    background: #0a0a0a;
+    overflow: hidden;
 }
 
-#new-session-btn button,
-#new-session-btn button span,
-#new-session-btn button * {
-    white-space: nowrap !important;
-}
-#new-session-btn button {
-    background: rgba(255,255,255,0.05) !important;
-    border: 1px solid rgba(255,255,255,0.12) !important;
-    border-radius: 8px !important;
-    color: #9090b8 !important;
-    font-size: 12px !important;
-    font-weight: 500 !important;
-    padding: 5px 12px !important;
-    min-height: 28px !important;
-    min-width: max-content !important;
-    letter-spacing: 0.01em !important;
-    transition: all 0.2s ease !important;
-    box-shadow: none !important;
-}
-#new-session-btn button:hover {
-    background: rgba(255,255,255,0.09) !important;
-    color: #c0c0e0 !important;
-    border-color: rgba(255,255,255,0.22) !important;
+/* ── Sidebar ──────────────────────────────────────────────────────────────── */
+#sidebar {
+    width: 64px;
+    min-width: 64px;
+    background: #111111;
+    border-right: 1px solid #1f1f1f;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px 0;
+    gap: 8px;
+    z-index: 50;
 }
 
-/* ── Empty state ──────────────────────────────────────────────────────── */
-#phase-col {
-    /* No display override — Gradio must be able to set display:none here */
-    flex-direction: column !important;
-    align-items: center !important;
-    justify-content: center !important;
-    flex: 0 !important;
-    min-height: 0 !important;
-    padding-top: 18vh !important;
-    padding-bottom: 28px !important;
-    gap: 16px !important;
+.sidebar-logo {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-bottom: 8px;
+}
+.sidebar-logo:hover { background: #222222; }
+
+.sidebar-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, opacity 0.2s;
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
 }
 
-#phase-msg p, #phase-msg span {
-    font-size: 1.85rem !important;
-    font-weight: 300 !important;
-    color: #5a5a80 !important;
-    text-align: center !important;
-    letter-spacing: -0.02em !important;
-    line-height: 1.45 !important;
-    margin: 0 !important;
+.sidebar-btn-new {
+    background: #2563eb;
+}
+.sidebar-btn-new:hover { background: #1d4ed8; }
+
+.sidebar-spacer { flex: 1; }
+
+.sidebar-btn-settings {
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    color: #9ca3af;
+}
+.sidebar-btn-settings:hover { background: #222222; color: #e5e7eb; }
+
+/* ── Main Content ─────────────────────────────────────────────────────────── */
+#content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
 }
 
-/* ── Status bar ───────────────────────────────────────────────────────── */
-#status-bar {
-    padding: 4px 28px !important;
-    min-height: 22px !important;
-    margin: 0 !important;
-}
-#status-bar p, #status-bar span {
-    color: #3a3a58 !important;
-    font-size: 11px !important;
-    text-align: center !important;
-    margin: 0 !important;
-    letter-spacing: 0.01em !important;
+/* ── Header ───────────────────────────────────────────────────────────────── */
+#header {
+    height: 56px;
+    min-height: 56px;
+    background: #111111;
+    border-bottom: 1px solid #1f1f1f;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 8px;
+    z-index: 40;
 }
 
-/* ── Chat panels ──────────────────────────────────────────────────────── */
+.provider-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border: 1px solid;
+    cursor: default;
+    user-select: none;
+}
+.chip-openai  { background: #0e1b17; color: #86efac; border-color: #2d5a4c; }
+.chip-gemini  { background: #131b2d; color: #93c5fd; border-color: #314c81; }
+.chip-claude  { background: #1b1612; color: #fbbf24; border-color: #5a4230; }
+
+.header-spacer { flex: 1; }
+
+.new-session-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    background: #2563eb;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.new-session-btn:hover { background: #1d4ed8; }
+
+/* ── Hero Section ─────────────────────────────────────────────────────────── */
+#hero {
+    position: absolute;
+    top: 56px; /* below header */
+    left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    /* Shift up so title sits comfortably above the input bar */
+    transform: translateY(-110px);
+    pointer-events: none;
+    z-index: 3;
+    transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+body.started #hero {
+    opacity: 0;
+    transform: translateY(-130px);
+    pointer-events: none;
+}
+
+.hero-title {
+    font-size: clamp(40px, 6vw, 72px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #ffffff 0%, #a0a0a0 50%, #ffffff 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shine 3s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes shine {
+    0%   { background-position: 200% center; }
+    100% { background-position: -200% center; }
+}
+
+.hero-subtitle {
+    font-size: clamp(14px, 2vw, 18px);
+    color: #6b7280;
+    font-weight: 400;
+    height: 28px;
+    overflow: hidden;
+}
+
+.hero-phrase {
+    display: block;
+    animation: phraseIn 0.5s ease forwards;
+}
+
+@keyframes phraseIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Input Bar ────────────────────────────────────────────────────────────── */
+#input-bar {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    top: 55%;
+    width: min(680px, calc(100% - 48px));
+    background: #111111;
+    border: 1px solid #262626;
+    border-radius: 28px;
+    padding: 16px 16px 12px;
+    z-index: 10;
+    transition: top 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                border-radius 0.3s ease,
+                bottom 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+body.started #input-bar {
+    top: unset;
+    bottom: 16px;
+    transform: translateX(-50%);
+    border-radius: 24px;
+}
+
+#input-bar textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #e5e7eb;
+    font-size: 15px;
+    font-family: 'Inter', system-ui, sans-serif;
+    line-height: 1.6;
+    resize: none;
+    min-height: 48px;
+    max-height: 160px;
+    overflow-y: auto;
+}
+#input-bar textarea::placeholder { color: #4b5563; }
+
+/* ── Input Toolbar ────────────────────────────────────────────────────────── */
+#input-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.tool-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #1a2840;
+    border: 1px solid #1e3a5f;
+    color: #60a5fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+.tool-btn:hover { background: #1e3060; }
+
+/* Model chips in toolbar */
+.model-chip-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.model-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+    background: inherit;
+}
+.model-chip:hover { opacity: 0.85; }
+
+.model-chip svg { flex-shrink: 0; }
+
+.model-chip.chip-openai  { background: #0e1b17; color: #86efac; border-color: #2d5a4c; }
+.model-chip.chip-gemini  { background: #131b2d; color: #93c5fd; border-color: #314c81; }
+.model-chip.chip-claude  { background: #1b1612; color: #fbbf24; border-color: #5a4230; }
+
+/* Upward-opening dropdown menus */
+.model-menu {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    min-width: 180px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    padding: 6px;
+    list-style: none;
+    z-index: 100;
+    box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+}
+.model-chip-wrap:hover .model-menu,
+.model-menu:hover { display: block; }
+
+.model-menu li {
+    padding: 8px 12px;
+    font-size: 13px;
+    color: #e5e7eb;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+}
+.model-menu li:hover { background: #262626; }
+.model-menu li.active { color: #60a5fa; font-weight: 600; }
+
+/* Send button */
+.toolbar-spacer { flex: 1; }
+
+.send-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: #2563eb;
+    border: none;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.2s, transform 0.1s;
+    flex-shrink: 0;
+}
+.send-btn:hover { background: #1d4ed8; }
+.send-btn:active { transform: scale(0.92); }
+.send-btn:disabled { background: #374151; cursor: not-allowed; }
+
+/* ── Panels Row ───────────────────────────────────────────────────────────── */
 #panels-row {
-    padding: 16px 20px 4px !important;
-    gap: 12px !important;
+    position: absolute;
+    top: 56px;
+    left: 0; right: 0;
+    bottom: 100px;
+    display: none;
+    gap: 1px;
+    background: #1f1f1f;
+    z-index: 2;
+    overflow: hidden;
+}
+
+body.started #panels-row { display: flex !important; }
+
+.panel-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #0a0a0a;
+    overflow: hidden;
+}
+
+.panel-header {
+    padding: 10px 16px;
+    background: #111111;
+    border-bottom: 1px solid #1f1f1f;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.panel-header.openai  { color: #86efac; }
+.panel-header.gemini  { color: #93c5fd; }
+.panel-header.claude  { color: #fbbf24; }
+
+/* Gradio chatbot overrides */
+#openai-chat, #gemini-chat, #claude-chat {
     flex: 1 !important;
-    align-items: stretch !important;
-}
-
-/* Brand-colored top border per model */
-#openai-chat.block {
-    border-top: 2px solid #10a37f !important;
-    border-radius: 12px !important;
-    background: #111120 !important;
-    overflow: hidden !important;
-}
-#gemini-chat.block {
-    border-top: 2px solid #4285f4 !important;
-    border-radius: 12px !important;
-    background: #111120 !important;
-    overflow: hidden !important;
-}
-#claude-chat.block {
-    border-top: 2px solid #d97706 !important;
-    border-radius: 12px !important;
-    background: #111120 !important;
-    overflow: hidden !important;
-}
-
-/* Panel label (model name) */
-#openai-chat .label-wrap span { color: #10a37f !important; font-size: 11px !important; font-weight: 600 !important; letter-spacing: 0.06em !important; text-transform: uppercase !important; }
-#gemini-chat .label-wrap span { color: #4285f4 !important; font-size: 11px !important; font-weight: 600 !important; letter-spacing: 0.06em !important; text-transform: uppercase !important; }
-#claude-chat .label-wrap span  { color: #d97706 !important; font-size: 11px !important; font-weight: 600 !important; letter-spacing: 0.06em !important; text-transform: uppercase !important; }
-
-/* Chat bubble styles */
-.message-bubble-border { border-radius: 12px !important; }
-.bubble-wrap            { padding: 4px 12px !important; }
-
-/* ── Input area ───────────────────────────────────────────────────────── */
-#input-wrap {
-    padding: 8px 20px 24px !important;
-    max-width: 860px !important;
-    margin: 0 auto !important;
-    width: 100% !important;
-}
-
-#chat-input-card {
-    --input-background-fill: transparent;  /* kill Gradio's gray textarea fill */
-    background: #161622 !important;
-    border: 1px solid rgba(255,255,255,0.08) !important;
-    border-radius: 16px !important;
-    overflow: hidden !important;
-    box-shadow:
-        0 0 0 1px rgba(255,255,255,0.02) inset,
-        0 8px 40px rgba(0,0,0,0.55) !important;
-    gap: 0 !important;
-    padding: 0 !important;
-    transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
-}
-#chat-input-card:focus-within {
-    border-color: rgba(255,255,255,0.15) !important;
-    box-shadow:
-        0 0 0 1px rgba(255,255,255,0.04) inset,
-        0 0 0 3px rgba(100,100,200,0.06),
-        0 8px 40px rgba(0,0,0,0.6) !important;
-}
-
-/* Prompt textbox — everything transparent so card background shows through */
-#prompt-input,
-#prompt-input *,
-#prompt-input .block,
-#prompt-input label {
+    overflow-y: auto !important;
     border: none !important;
     background: transparent !important;
-    background-color: transparent !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-}
-#prompt-input textarea {
-    min-height: 58px !important;
-    max-height: 200px !important;
-    border: none !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    --input-background-fill: transparent !important;
-    box-shadow: none !important;
-    resize: none !important;
-    font-size: 15px !important;
-    color: #d0d0ee !important;
-    padding: 18px 20px 10px !important;
-    line-height: 1.65 !important;
-    outline: none !important;
-    caret-color: #8888cc !important;
-}
-#prompt-input textarea::placeholder { color: #70708a !important; }
-/* Only hide the label text span — NOT the <label> wrapper that contains the textarea in Gradio 5 */
-#prompt-input .label-wrap { display: none !important; }
-
-/* Toolbar divider — hidden */
-#toolbar-divider { display: none !important; }
-
-/* Bottom row — explicit flex row so pills stay horizontal */
-#bottom-row {
-    display: flex !important;
-    flex-direction: row !important;
-    flex-wrap: nowrap !important;
-    align-items: center !important;
-    padding: 9px 12px 12px !important;
-    gap: 6px !important;
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-}
-/* Strip backgrounds/borders from Gradio wrappers; override Gradio's inline min-width/flex */
-#bottom-row > div, #bottom-row > div > div, #bottom-row form {
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    flex: 0 0 auto !important;
-    min-width: 0 !important;
-    width: fit-content !important;
+    height: 100% !important;
 }
 
-/* ── Model dropdowns — pill-button style, grouped left ───────────────────── */
-#openai-dd, #gemini-dd, #claude-dd {
-    display: inline-flex !important;
-    flex: 0 0 auto !important;   /* size to content, don't fill row */
-    min-width: 0 !important;
-    width: fit-content !important;
-    background: transparent !important;
-}
-#openai-dd > *, #gemini-dd > *, #claude-dd > *,
-#openai-dd .block, #gemini-dd .block, #claude-dd .block,
-#openai-dd label, #gemini-dd label, #claude-dd label {
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    min-height: unset !important;
-    gap: 0 !important;
-    width: fit-content !important;
-    min-width: 0 !important;
-}
-#openai-dd .label-wrap, #gemini-dd .label-wrap, #claude-dd .label-wrap { display: none !important; }
-
-/* Hide the chevron arrow — pill buttons don't need it */
-#openai-dd .wrap svg, #gemini-dd .wrap svg, #claude-dd .wrap svg { display: none !important; }
-
-/* Shared pill shape */
-#openai-dd .wrap, #openai-dd [data-testid="dropdown"],
-#gemini-dd .wrap, #gemini-dd [data-testid="dropdown"],
-#claude-dd .wrap, #claude-dd [data-testid="dropdown"] {
-    border-radius: 20px !important;
-    padding: 5px 16px !important;
-    height: auto !important;
-    min-height: unset !important;
-    cursor: pointer !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    transition: all 0.15s ease !important;
-    width: max-content !important;
-}
-
-/* OpenAI pill — teal */
-#openai-dd .wrap, #openai-dd [data-testid="dropdown"] {
-    background: rgba(16,163,127,0.08) !important;
-    border: 1px solid rgba(16,163,127,0.32) !important;
-    box-shadow: none !important;
-}
-#openai-dd .wrap:hover { background: rgba(16,163,127,0.15) !important; border-color: rgba(16,163,127,0.55) !important; }
-#openai-dd .wrap span,
-#openai-dd .wrap input { font-size: 13px !important; color: #4ed9a8 !important; font-weight: 600 !important; background: transparent !important; letter-spacing: 0.01em !important; }
-
-/* Gemini pill — blue */
-#gemini-dd .wrap, #gemini-dd [data-testid="dropdown"] {
-    background: rgba(66,133,244,0.08) !important;
-    border: 1px solid rgba(66,133,244,0.32) !important;
-    box-shadow: none !important;
-}
-#gemini-dd .wrap:hover { background: rgba(66,133,244,0.15) !important; border-color: rgba(66,133,244,0.55) !important; }
-#gemini-dd .wrap span,
-#gemini-dd .wrap input { font-size: 13px !important; color: #6ab0ff !important; font-weight: 600 !important; background: transparent !important; letter-spacing: 0.01em !important; }
-
-/* Claude pill — amber */
-#claude-dd .wrap, #claude-dd [data-testid="dropdown"] {
-    background: rgba(217,119,6,0.08) !important;
-    border: 1px solid rgba(217,119,6,0.32) !important;
-    box-shadow: none !important;
-}
-#claude-dd .wrap:hover { background: rgba(217,119,6,0.15) !important; border-color: rgba(217,119,6,0.55) !important; }
-#claude-dd .wrap span,
-#claude-dd .wrap input { font-size: 13px !important; color: #f5b63a !important; font-weight: 600 !important; background: transparent !important; letter-spacing: 0.01em !important; }
-
-/* ── Send group — pushed to the right ────────────────────────────────────── */
-#send-group {
-    margin-left: auto !important;
-    flex-shrink: 0 !important;
-    gap: 4px !important;
-    align-items: center !important;
-}
-
-#send-btn button {
-    border-radius: 8px !important;
-    width: 32px !important;
-    height: 32px !important;
-    min-width: 32px !important;
-    min-height: 32px !important;
-    background: #4a4af0 !important;
-    border: none !important;
-    color: #ffffff !important;
-    font-size: 15px !important;
-    font-weight: 400 !important;
-    padding: 0 !important;
-    line-height: 1 !important;
-    transition: background 0.15s ease !important;
-    box-shadow: 0 2px 8px rgba(74,74,240,0.35) !important;
-}
-#send-btn button:hover {
-    background: #5c5cf5 !important;
-    box-shadow: 0 3px 12px rgba(74,74,240,0.45) !important;
-}
-#send-btn button:active {
-    background: #3838d8 !important;
-    box-shadow: none !important;
-}
-
-#send-chevron button {
-    border-radius: 8px !important;
-    width: 24px !important;
-    height: 32px !important;
-    min-width: 24px !important;
-    min-height: 32px !important;
-    background: rgba(255,255,255,0.04) !important;
-    border: 1px solid rgba(255,255,255,0.08) !important;
-    color: #50507a !important;
-    font-size: 9px !important;
-    padding: 0 !important;
-    line-height: 1 !important;
-    transition: all 0.15s ease !important;
-    box-shadow: none !important;
-}
-#send-chevron button:hover {
-    background: rgba(255,255,255,0.08) !important;
-    color: #8080a8 !important;
-}
-
-/* ── Session dropdown menu ────────────────────────────────────────────── */
-#session-menu {
-    max-width: 176px !important;
-    margin-left: auto !important;
-    background: #1c1c2c !important;
-    border: 1px solid rgba(255,255,255,0.1) !important;
-    border-radius: 10px !important;
-    padding: 4px !important;
-    box-shadow: 0 16px 48px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.03) !important;
-    margin-top: 4px !important;
-}
-#session-menu button {
-    width: 100% !important;
-    justify-content: flex-start !important;
-    text-align: left !important;
-    padding: 0 12px !important;
-    min-height: 34px !important;
-    font-size: 13px !important;
-    color: #9090b0 !important;
+#openai-chat .wrap, #gemini-chat .wrap, #claude-chat .wrap {
     background: transparent !important;
     border: none !important;
-    border-radius: 6px !important;
-    transition: all 0.12s ease !important;
-    box-shadow: none !important;
-}
-#session-menu button:hover {
-    background: rgba(255,255,255,0.07) !important;
-    color: #e0e0f0 !important;
-}
-
-/* ── Modals ───────────────────────────────────────────────────────────── */
-#end-session-modal, #model-change-modal {
-    position: fixed !important;
-    inset: 0 !important;
-    background: rgba(0,0,0,0.82) !important;
-    z-index: 9990 !important;
-    width: 100vw !important;
-    height: 100vh !important;
     padding: 0 !important;
-    margin: 0 !important;
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
 }
 
-.modal-inner {
-    position: fixed !important;
-    top: 50% !important;
-    left: 50% !important;
-    transform: translate(-50%, -50%) !important;
-    background: #1c1c2c !important;
-    border: 1px solid rgba(255,255,255,0.13) !important;
-    border-radius: 18px !important;
-    padding: 32px 36px !important;
-    min-width: 340px !important;
-    max-width: 440px !important;
-    z-index: 9999 !important;
-    box-shadow:
-        0 0 0 1px rgba(255,255,255,0.04) inset,
-        0 40px 100px rgba(0,0,0,0.9) !important;
-    gap: 10px !important;
+#openai-chat .message-wrap,
+#gemini-chat .message-wrap,
+#claude-chat .message-wrap {
+    padding: 12px 16px !important;
+    gap: 12px !important;
 }
 
-.modal-inner h3, .modal-inner h2 {
-    font-size: 16px !important;
-    font-weight: 600 !important;
-    color: #e0e0f0 !important;
-    margin: 0 !important;
-    line-height: 1.4 !important;
+/* ── Status Bar ───────────────────────────────────────────────────────────── */
+#status-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    font-size: 11px;
+    color: #4b5563;
+    background: #0a0a0a;
+    border-top: 1px solid #1a1a1a;
+    z-index: 1;
 }
 
-.modal-inner p, .modal-inner span {
-    font-size: 13px !important;
-    color: #60607a !important;
-    line-height: 1.55 !important;
-    margin: 4px 0 0 !important;
+/* ── Footer Text ──────────────────────────────────────────────────────────── */
+#footer-text {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    font-size: 12px;
+    color: #374151;
+    white-space: nowrap;
+    pointer-events: none;
+    transition: opacity 0.5s;
+    z-index: 3;
+}
+body.started #footer-text { opacity: 0; }
+
+/* ── Hidden Gradio Wrappers ───────────────────────────────────────────────── */
+#hidden-controls {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    opacity: 0;
+    pointer-events: none;
+    top: -9999px;
+    left: -9999px;
 }
 
-.modal-btn-row {
-    gap: 8px !important;
-    margin-top: 14px !important;
-}
-
-.modal-btn-row button {
-    border-radius: 9px !important;
-    min-height: 36px !important;
-    font-size: 13px !important;
-    font-weight: 500 !important;
-    transition: all 0.15s ease !important;
-}
-
-/* ── Suppress Gradio generating animation ───────────────────────────────── */
-/* Kill the animation; override orange border only on top-level containers */
-.generating { animation: none !important; }
-#panels-row.generating,
-#chat-input-card.generating,
-#prompt-input.generating { border-color: transparent !important; box-shadow: none !important; outline: none !important; }
-
-/* ── Chatbot action buttons ──────────────────────────────────────────────── */
-/* Per-message copy/flag buttons — hide all */
-.message-buttons { display: none !important; }
-/* Panel header: Gradio renders Share → Delete → Copy in that order.
-   Hide all except the last child (Copy), which we keep. */
-#openai-chat .label-wrap button:not(:last-child),
-#gemini-chat .label-wrap button:not(:last-child),
-#claude-chat .label-wrap button:not(:last-child) { display: none !important; }
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
 """

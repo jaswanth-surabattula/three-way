@@ -29,7 +29,6 @@ def format_response(resp) -> str:
         return f"**Error:** {resp.error}"
     stats = (
         f"\n\n---\n*{resp.latency_seconds:.2f}s &nbsp;|&nbsp; "
-        f"{resp.total_tokens} tokens &nbsp;|&nbsp; "
-        f"${resp.estimated_cost_usd:.6f}*"
+        f"{resp.total_tokens} tokens &nbsp;|&nbsp; ${resp.estimated_cost_usd:.6f}*"
     )
     return (resp.content or "") + stats
