@@ -16,7 +16,7 @@ tags:
 - comparison
 ---
 
-# Tri-Model LLM Arena 🥊
+# Tri-Model LLM Arena 🥊 
 
 A unified, asynchronous chat interface designed to compare the "Big Three" AI providers—Anthropic, Google, and OpenAI—simultaneously within a single, responsive dashboard.
 
