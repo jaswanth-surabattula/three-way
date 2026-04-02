@@ -1,8 +1,8 @@
 PHASE_MESSAGES = [
-    "Three models. One question. Who wins?",
-    "Same prompt, three minds — place your bets.",
-    "Ask once. Get three takes.",
-    "One prompt to rule them all.",
-    "Let GPT, Gemini & Claude fight it out.",
-    "Pick a side. Or don't — just ask.",
+    "Three Models. One Question. Who Wins?",
+    "Three perspectives. One prompt.",
+    "The arena for artificial intelligence.",
+    "Settle the debate. Ask all three.",
+    "Compare responses in real-time.",
+    "The ultimate AI showdown.",
 ]
