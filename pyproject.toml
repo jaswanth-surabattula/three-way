@@ -13,13 +13,11 @@ dependencies = [
     "openai>=2.30.0",
     "pydantic>=2.12.5",
     "python-dotenv>=1.2.2",
-    "gradio>=5.0.0",
     "ruff>=0.15.7",
 ]
 
 [project.scripts]
 three-way = "three_way:main"
-three-way-ui = "three_way.ui.app:launch"
 
 [build-system]
 requires = ["uv_build>=0.11.1,<0.12.0"]

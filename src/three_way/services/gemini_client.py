@@ -1,13 +1,9 @@
-import logging
-
 from google import genai
 from google.genai import types
 
 from three_way.core.config import get_api_key, get_model
 from three_way.models.chat import ChatRequest, ChatResponse, Provider
 from three_way.utils.timer import Timer, calculate_cost
-
-log = logging.getLogger(__name__)
 
 
 def _to_gemini_contents(request: ChatRequest) -> list[types.Content]:
@@ -41,9 +37,6 @@ async def chat(request: ChatRequest, model_id: str) -> ChatResponse:
     contents = _to_gemini_contents(request)
     config = types.GenerateContentConfig(max_output_tokens=request.max_tokens)
 
-    log.info("Gemini request  model=%s  turns=%d  max_tokens=%d",
-             model_id, len(request.messages), request.max_tokens)
-
     try:
         with Timer() as t:
             response = await client.aio.models.generate_content(
@@ -55,18 +48,6 @@ async def chat(request: ChatRequest, model_id: str) -> ChatResponse:
         usage = response.usage_metadata
         prompt_tokens = usage.prompt_token_count if usage else 0
         completion_tokens = usage.candidates_token_count if usage else 0
-
-        # Gemini exposes finish_reason on the first candidate
-        finish_reason = None
-        if response.candidates:
-            finish_reason = getattr(response.candidates[0].finish_reason, "name", None)
-
-        log.info(
-            "Gemini response model=%s  finish=%s  tokens=%d+%d  latency=%.2fs",
-            model_id, finish_reason, prompt_tokens, completion_tokens, t.elapsed,
-        )
-        if finish_reason == "MAX_TOKENS":
-            log.warning("Gemini response truncated (finish_reason=MAX_TOKENS)  model=%s", model_id)
 
         return ChatResponse(
             provider=Provider.GEMINI,
@@ -83,7 +64,6 @@ async def chat(request: ChatRequest, model_id: str) -> ChatResponse:
         )
 
     except Exception as e:
-        log.error("Gemini error  model=%s  error=%s", model_id, e, exc_info=True)
         return ChatResponse(
             provider=Provider.GEMINI,
             model=model_config.display_name,
