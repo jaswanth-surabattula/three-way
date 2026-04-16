@@ -23,7 +23,7 @@ A unified, asynchronous chat interface designed to compare the "Big Three" AI pr
 ## 🚀 Overview
 Tri-Model LLM Arena allows developers and researchers to send a single prompt and receive three parallel responses. It provides a "Replit-inspired" UI that adapts between desktop and mobile, offering deep insights into the performance and economics of each model through real-time telemetry.
 
-## ✨ Key Features
+## ✨ Key Features 
 * **Asynchronous Execution:** Queries Claude, Gemini, and GPT APIs in parallel to minimize wait times and ensure simultaneous streaming.
 * **Flexible UI (Replit-Style):**
     * **Desktop:** 3-pane side-by-side layout with an option to stack windows vertically.
