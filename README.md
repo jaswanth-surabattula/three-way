@@ -27,7 +27,7 @@ Tri-Model LLM Arena allows developers and researchers to send a single prompt an
 * **Asynchronous Execution:** Queries Claude, Gemini, and GPT APIs in parallel to minimize wait times and ensure simultaneous streaming.
 * **Flexible UI (Replit-Style):**
     * **Desktop:** 3-pane side-by-side layout with an option to stack windows vertically.
-    * **Mobile:** Vertical stack with two panes closed by default (toggleable).
+    * **Mobile:** Vertical stack with two panes closed by default (toggleable). 
 * **Model Tier Presets:** Quickly switch between comparison sets:
     * **Flash:** GPT-4o-mini, Gemini 1.5 Flash, Claude 3.5 Haiku.
     * **Pro/Mid:** GPT-4o, Gemini 1.5 Pro, Claude 3.5 Sonnet.
