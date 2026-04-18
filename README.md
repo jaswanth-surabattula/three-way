@@ -28,7 +28,7 @@ Tri-Model LLM Arena allows developers and researchers to send a single prompt an
 * **Flexible UI (Replit-Style):**
     * **Desktop:** 3-pane side-by-side layout with an option to stack windows vertically.
     * **Mobile:** Vertical stack with two panes closed by default (toggleable). 
-* **Model Tier Presets:** Quickly switch between comparison sets:
+* **Model Tier Presets:** Quickly switch between comparison sets: 
     * **Flash:** GPT-4o-mini, Gemini 1.5 Flash, Claude 3.5 Haiku.
     * **Pro/Mid:** GPT-4o, Gemini 1.5 Pro, Claude 3.5 Sonnet.
     * **SOTA:** o1-preview, Gemini 2.0 Ultra, Claude 3 Opus.
